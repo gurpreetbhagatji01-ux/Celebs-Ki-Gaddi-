@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebs Ki Gaddi - Bollywood News</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #ff3b30;
+            --background-color: #f0f2f5;
+            --card-color: #ffffff;
+            --text-color: #1c1e21;
+            --subtle-text-color: #65676b;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --border-color: #dddfe2;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #1c1e21; display: flex; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        #splash-screen.hidden { opacity: 0; visibility: hidden; }
+        .splash-logo { font-size: 2.5em; font-weight: 700; color: #fff; text-align: center; }
+        .splash-logo span { color: var(--primary-color); }
+
+        /* --- HEADER --- */
+        .app-header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background-color: var(--card-color); padding: 15px 20px;
+            z-index: 1000; box-shadow: var(--shadow);
+        }
+        .app-logo { font-size: 1.5em; font-weight: 700; color: var(--text-color); }
+        .app-logo span { color: var(--primary-color); }
+
+        /* --- APP CONTAINER & PAGES --- */
+        .app-container {
+            max-width: 700px; margin: 0 auto;
+            padding: 80px 15px 80px 15px; /* Padding for header and nav */
+        }
+        .app-page { display: none; }
+        .app-page.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        h1 { font-size: 1.8em; margin-bottom: 20px; }
+
+        /* --- NEWS FEED STYLES --- */
+        .article-card {
+            background-color: var(--card-color); border-radius: 12px;
+            margin-bottom: 20px; box-shadow: var(--shadow);
+            overflow: hidden; text-decoration: none; color: var(--text-color);
+            display: block; transition: transform 0.2s ease-in-out;
+        }
+        .article-card:hover { transform: translateY(-5px); }
+        .card-image { width: 100%; height: 220px; object-fit: cover; display: block; }
+        .card-content { padding: 20px; }
+        .card-content h2 { font-size: 1.4em; font-weight: 600; line-height: 1.3; margin-bottom: 10px; }
+        .card-content .snippet { font-size: 0.95em; color: var(--subtle-text-color); line-height: 1.5; margin-bottom: 15px; }
+        .card-meta { font-size: 0.8em; color: var(--subtle-text-color); opacity: 0.8; }
+        .loader { text-align: center; padding: 40px; font-size: 1.1em; color: var(--subtle-text-color); }
+
+        /* --- REFER & EARN STYLES --- */
+        .refer-card {
+            background-color: var(--card-color);
+            padding: 25px; border-radius: 12px;
+            text-align: center; box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+        .refer-card p { color: var(--subtle-text-color); margin-bottom: 20px; }
+        .referral-code-box {
+            background-color: var(--background-color);
+            border: 2px dashed var(--primary-color);
+            padding: 15px; border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .referral-code {
+            font-size: 1.8em; font-weight: 700;
+            color: var(--text-color); letter-spacing: 2px;
+        }
+        .share-btn {
+            display: inline-block; background-color: var(--primary-color);
+            color: #fff; padding: 12px 30px; border-radius: 50px;
+            text-decoration: none; font-weight: 600;
+            cursor: pointer; border: none; font-size: 1em;
+        }
+        .progress-card { text-align: left; }
+        .progress-bar-container {
+            width: 100%; background-color: var(--background-color);
+            border-radius: 50px; height: 10px; margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%; width: 0%; background-color: var(--primary-color);
+            border-radius: 50px; transition: width 0.5s ease;
+        }
+        #claim-reward-btn { display: none; margin-top: 20px; width: 100%; padding: 15px; }
+
+        /* --- CLAIM MODAL STYLES --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); z-index: 2000;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: var(--card-color); padding: 30px;
+            border-radius: 12px; width: 90%; max-width: 400px;
+        }
+        .modal-content h2 { text-align: center; }
+        .modal-content .form-group { margin-bottom: 15px; }
+        .modal-content label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .modal-content input {
+            width: 100%; padding: 12px; border-radius: 8px;
+            border: 1px solid var(--border-color); font-size: 1em;
+        }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-buttons button { flex-grow: 1; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+        #submit-claim-btn { background-color: var(--primary-color); color: #fff; }
+        #close-modal-btn { background-color: var(--background-color); color: var(--text-color); }
+
+        /* --- BOTTOM NAVIGATION BAR --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
+            background-color: var(--card-color); display: flex;
+            justify-content: space-around; align-items: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid var(--border-color); z-index: 1000;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; cursor: pointer; color: var(--subtle-text-color);
+            transition: color 0.3s; flex-grow: 1;
+        }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
+        .nav-item span { font-size: 0.75em; }
+        .nav-item.active { color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="splash-logo">Celebs Ki <span>Gaddi</span></div>
+    </div>
+
+    <header class="app-header">
+        <div class="app-logo">Celebs Ki <span>Gaddi</span></div>
+    </header>
+
+    <div class="app-container">
+        <!-- PAGE 1: NEWS FEED -->
+        <section id="news-page" class="app-page active">
+            <div id="news-feed">
+                <p class="loader">Loading latest news...</p>
+            </div>
+        </section>
+
+        <!-- PAGE 2: REFER & EARN -->
+        <section id="refer-page" class="app-page">
+            <h1>Refer & Earn</h1>
+            <div class="refer-card">
+                <p>Refer 5 friends and get a <b>₹50 Amazon Gift Card!</b> Share your unique code with your friends.</p>
+                <div class="referral-code-box">
+                    <span class="referral-code" id="referral-code">LOADING...</span>
+                </div>
+                <button class="share-btn" id="share-btn">Share Your Code</button>
+            </div>
+            <div class="refer-card progress-card">
+                <h3>Your Progress</h3>
+                <p id="progress-text">You have 0 / 5 referrals.</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <button class="share-btn" id="claim-reward-btn">Claim Reward</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- CLAIM REWARD MODAL (POPUP) -->
+    <div class="modal-overlay" id="claim-modal">
+        <div class="modal-content">
+            <h2>Claim Your Reward!</h2>
+            <p style="text-align:center; color: var(--subtle-text-color); margin-bottom: 20px;">Please provide your details to receive the gift card.</p>
+            <form id="claim-form" action="https://formspree.io/f/xgvzjool" method="POST">
+                <div class="form-group">
+                    <label for="claim-name">Your Name</label>
+                    <input type="text" id="claim-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="claim-contact">Email or WhatsApp No.</label>
+                    <input type="text" id="claim-contact" name="contact" required>
+                </div>
+                <!-- Hidden field to send your referral code for verification -->
+                <input type="hidden" id="hidden-ref-code" name="referral_code">
+                
+                <div class="modal-buttons">
+                    <button type="button" id="close-modal-btn">Cancel</button>
+                    <button type="submit" id="submit-claim-btn">Submit Claim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" data-page="news-page">
+            <svg viewBox="0 0 24 24"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM8 17H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6V7h2v2zm10 8h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4h-8V7h8v2z"/></svg>
+            <span>News Feed</span>
+        </div>
+        <div class="nav-item" data-page="refer-page">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-9c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm-4 4h8v-1.5c0-1.67-3.33-2.5-4-2.5s-4 .83-4 2.5V15z"/></svg>
+            <span>Refer & Earn</span>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const splashScreen = document.getElementById('splash-screen');
+            const newsFeed = document.getElementById('news-feed');
+            const navItems = document.querySelectorAll('.nav-item');
+            const pages = document.querySelectorAll('.app-page');
+
+            // --- SPLASH & NAVIGATION ---
+            setTimeout(() => { splashScreen.classList.add('hidden'); }, 2000);
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetPageId = item.getAttribute('data-page');
+                    pages.forEach(page => page.classList.toggle('active', page.id === targetPageId));
+                    navItems.forEach(nav => nav.classList.toggle('active', nav === item));
+                });
+            });
+
+            // --- NEWS FEED LOGIC ---
+            function fetchNews() {
+                newsFeed.innerHTML = '<p class="loader">Loading latest news...</p>';
+                const bloggerUrl = 'https://celebskigaddi.blogspot.com'; // IMPORTANT: REPLACE THIS
+                const rssUrl = `${bloggerUrl}/feeds/posts/default?alt=rss`;
+                const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        newsFeed.innerHTML = '';
+                        if (data.status === 'ok' && data.items.length > 0) {
+                            data.items.forEach(article => {
+                                const tempDiv = document.createElement('div');
+                                tempDiv.innerHTML = article.description;
+                                const firstImage = tempDiv.querySelector('img');
+                                const imageUrl = firstImage ? firstImage.src : 'https://via.placeholder.com/400x220.png?text=CelebsKiGaddi';
+                                const snippet = (tempDiv.textContent || tempDiv.innerText || "").substring(0, 150);
+                                const articleCard = `<a href="${article.link}" target="_blank" class="article-card"><img src="${imageUrl}" alt="${article.title}" class="card-image"><div class="card-content"><h2>${article.title}</h2><p class="snippet">${snippet}...</p><p class="card-meta">Published on ${new Date(article.pubDate).toLocaleDateString()}</p></div></a>`;
+                                newsFeed.innerHTML += articleCard;
+                            });
+                        } else {
+                            newsFeed.innerHTML = '<p class="loader">No articles found.</p>';
+                        }
+                    }).catch(error => {
+                        newsFeed.innerHTML = '<p class="loader">Could not load news.</p>';
+                    });
+            }
+            fetchNews();
+
+            // --- REFER & EARN LOGIC ---
+            const referralCodeEl = document.getElementById('referral-code');
+            const progressTextEl = document.getElementById('progress-text');
+            const progressBarEl = document.getElementById('progress-bar');
+            const claimBtn = document.getElementById('claim-reward-btn');
+            const shareBtn = document.getElementById('share-btn');
+            const claimModal = document.getElementById('claim-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const claimForm = document.getElementById('claim-form');
+            const hiddenRefCodeInput = document.getElementById('hidden-ref-code');
+
+            let userInfo = {};
+
+            function generateRefCode() {
+                return 'CG' + Math.random().toString(36).substring(2, 7).toUpperCase();
+            }
+
+            function initUser() {
+                const storedUser = localStorage.getItem('celebsKiGaddiUser');
+                if (storedUser) {
+                    userInfo = JSON.parse(storedUser);
+                } else {
+                    userInfo = {
+                        refCode: generateRefCode(),
+                        refCount: 0
+                    };
+                    localStorage.setItem('celebsKiGaddiUser', JSON.stringify(userInfo));
+                }
+                updateReferralUI();
+            }
+
+            function updateReferralUI() {
+                referralCodeEl.textContent = userInfo.refCode;
+                hiddenRefCodeInput.value = userInfo.refCode;
+                
+                // For demonstration, let's allow manual increment of referrals
+                // In a real app, this would be server-verified.
+                // You can test by typing `incrementReferrals()` in the browser console.
+                const count = userInfo.refCount > 5 ? 5 : userInfo.refCount;
+                
+                progressTextEl.textContent = `You have ${count} / 5 referrals.`;
+                progressBarEl.style.width = `${(count / 5) * 100}%`;
+
+                if (count >= 5) {
+                    claimBtn.style.display = 'block';
+                } else {
+                    claimBtn.style.display = 'none';
+                }
+            }
+            
+            // This is a helper function for you to test the claim button
+            window.incrementReferrals = function() {
+                userInfo.refCount++;
+                localStorage.setItem('celebsKiGaddiUser', JSON.stringify(userInfo));
+                updateReferralUI();
+                console.log("Referral count increased to:", userInfo.refCount);
+            }
+
+            shareBtn.addEventListener('click', () => {
+                const shareText = `Check out the Celebs Ki Gaddi app for the latest Bollywood news! Use my referral code: ${userInfo.refCode}\n\n`;
+                const shareUrl = window.location.href; // In a real scenario, this would be your hosted app URL
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Celebs Ki Gaddi',
+                        text: shareText,
+                        url: shareUrl,
+                    });
+                } else {
+                    alert(shareText + shareUrl);
+                }
+            });
+
+            claimBtn.addEventListener('click', () => {
+                claimModal.style.display = 'flex';
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                claimModal.style.display = 'none';
+            });
+            
+            claimForm.addEventListener('submit', () => {
+                // Show a confirmation after a short delay
+                setTimeout(() => {
+                    claimModal.style.display = 'none';
+                    alert('Thank you! Your claim has been submitted. We will verify and contact you shortly.');
+                }, 500);
+            });
+
+            initUser();
+        });
+    </script>
+
+</body>
+</html>
